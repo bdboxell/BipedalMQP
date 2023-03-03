@@ -5,6 +5,7 @@ struct PID {
     float last_error = 0;
     float sum = 0;
     bool set = false;
+    unsigned long last_time;
 };
 
 float pid_calculate(PID* pid, float target, float current);

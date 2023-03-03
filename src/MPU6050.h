@@ -20,7 +20,7 @@ class MPU6050 {
 		Pose cur_pose;
 		unsigned long lastTimeStamp = millis();
         const float g = 10.1;
-        const float fudge_factor = 0; //14.7 
+        const float fudge_factor = 16.7; //16.3
 		void get_raw_data(Pose* pose);
 		void normalize_data(Pose* data);
 		Adafruit_MPU6050 mpu;

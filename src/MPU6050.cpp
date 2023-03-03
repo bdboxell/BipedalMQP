@@ -145,8 +145,8 @@ void MPU6050::calibrate_pitch() {
   float theta1 = acos(raw_data.z/g);
   // float theta2 = acos(x/g);
   // float offset = theta1 *RAD_TO_DEG;
-  float offset = -78.75;
-  cur_pose.pitch += offset;//offset+fudge_factor;
+  float offset = 75.5;
+  cur_pose.pitch += offset;//+fudge_factor;
 }
 
 void MPU6050::get_data(Pose* pose) {

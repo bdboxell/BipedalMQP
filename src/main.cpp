@@ -5,14 +5,18 @@
 #include "WebClient.h"
 #include "SPIFFS.h"
 #include "DataPacket.h"
+#include "Controller.h"
 // #include "MathUtils.h"
 
-MotorInterface right_motor = MotorInterface(12, true);
-MotorInterface left_motor = MotorInterface(14, false);
+MotorInterface right_motor = MotorInterface(14, true);
+MotorInterface left_motor = MotorInterface(12, false);
 MPU6050 imu;
+Controller controller = Controller(33,32);
 
-//oscillation at kp = 5.25, 4 0's before a digit for I
-PID balance_pid = pid_init(12, 0, 1000, 0, 4);
+//oscillation at kp = 3, ki = 0.01
+// PID balance_pid = pid_init(1, 0.04, 150);
+PID balance_pid = pid_init(4, 0.025, 0.25);
+
 
 String serial_in = "";
 
@@ -25,42 +29,32 @@ void input();
 
 float last_power = 0;
 
+int iter_count = 0;
+
 void setup(void) {
 
-  
+
   Serial.begin(115200);
   delay(300);
   imu.init();
   imu.calibrate();
   delay(100);
   imu.calibrate_pitch();
-
-if(!SPIFFS.begin(true)){
-    Serial.println("An Error has occurred while mounting SPIFFS");
-    return;
-  }
-  
-  File file = SPIFFS.open("/text.txt");
-  if(!file){
-    Serial.println("Failed to open file for reading");
-    return;
-  }
-  
-  Serial.println("File Content:");
-  while(file.available()){
-    Serial.write(file.read());
-  }
-  file.close();
-
-  // web_client.init_server();
 }
 
 void loop() {
   imu.update();
+  if (iter_count>5) {
+    Pose pose = imu.get_data();
+    Serial.println(pose.pitch);
+    iter_count = 0;
+  }
+  iter_count++;
   // imu.print();
-  input();
+  // // input();
   balance();
-
+  // Serial.println(controller.get_steering());
+  // Serial.println(controller.get_throttle());
   delay(10);
 }
 
@@ -80,11 +74,17 @@ void calibrate_power() {
 
 void balance() {
  
+  float left_input, right_input = 0;
+  float input_gain = 0.4;
+  left_input = (controller.get_steering()) * input_gain;
+  right_input = (controller.get_steering()) * input_gain;
+
+  float target_angle = -controller.get_throttle()*0.08;
+
   Pose pose = imu.get_data();
 
-  float max = 100;
+  float max = 50;
 
-  float target_angle = 0;
   if(serial_in == "w") {
     target_angle = 2;
      Serial.print("\nPower: ");
@@ -94,21 +94,30 @@ void balance() {
     logging = !logging;
   }
   
-  if (fabs(pose.pitch) < 15) {
+  if (fabs(pose.pitch) < 20) {
     float power = pid_calculate(&balance_pid, target_angle, pose.pitch);
-
     float exponent = 1;
     power = ((power < 0)? -1: 1)*fabs(pow(power/100, exponent))*100;
+    // last_power = power;
 
-    if (power>max) {
-      power = max;
+    float left_power = power+left_input;
+    float right_power = power+right_input;
+
+    if (left_power>max) {
+      left_power = max;
     }
-    else if (power < -max) {
-      power = -max;
+    else if (left_power < -max) {
+      left_power = -max;
     }
- 
-    int pwm = right_motor.write_percent(power);
-    left_motor.write_percent(power);
+    if (right_power>max) {
+      right_power = max;
+    }
+    else if (right_power < -max) {
+      right_power = -max;
+    }
+
+    int pwm = right_motor.write_percent(right_power);
+    left_motor.write_percent(left_power);
 
     if(logging) {
       DataPacket packet;
