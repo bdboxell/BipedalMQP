@@ -25,5 +25,4 @@ class MPU6050 {
 		void normalize_data(Pose* data);
 		Adafruit_MPU6050 mpu;
 	    Pose average_filter;
-
 };

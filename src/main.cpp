@@ -1,6 +1,7 @@
 #include <Arduino.h>
 #include "MotorInterface.h"
 #include "MPU6050.h"
+#include "IMU.h"
 #include "pid.h"
 #include "WebClient.h"
 #include "SPIFFS.h"
@@ -10,7 +11,7 @@
 
 MotorInterface right_motor = MotorInterface(14, true);
 MotorInterface left_motor = MotorInterface(12, false);
-MPU6050 imu;
+IMU imu;
 Controller controller = Controller(33,32);
 
 //oscillation at kp = 3, ki = 0.01
@@ -37,22 +38,22 @@ void setup(void) {
   Serial.begin(115200);
   delay(300);
   imu.init();
-  imu.calibrate();
-  delay(100);
-  imu.calibrate_pitch();
+  // imu.calibrate();
+  delay(500);
+  // imu.calibrate_pitch();
 }
 
 void loop() {
-  imu.update();
+  // imu.update();
   if (iter_count>5) {
     Pose pose = imu.get_data();
-    Serial.println(pose.pitch);
+    // Serial.println(pose.pitch);
     iter_count = 0;
   }
   iter_count++;
   // imu.print();
   // // input();
-  balance();
+  // balance();
   // Serial.println(controller.get_steering());
   // Serial.println(controller.get_throttle());
   delay(10);
