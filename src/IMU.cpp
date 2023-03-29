@@ -1,5 +1,6 @@
 #include <IMU.h>
 
+void* IMU::IMU_obj = nullptr;
 
 IMU::IMU() {
 }
@@ -11,20 +12,22 @@ IMU::~IMU() {
 void IMU::grabData()
 {
     burstData = {};
+    imu.configSPI();
     burstData = imu.wordBurst(); // Read data and insert into array
 }
 
 void IMU::init() {
     IMU_obj = this;
+    imu.configSPI();
     delay(500);
-    imu.regWrite(MSC_CTRL, 0xC1);
-    imu.regWrite(FILT_CTRL, 0x04); // Set digital filter
-    imu.regWrite(DEC_RATE, 0x00), // Disable decimation
+    // imu.regWrite(MSC_CTRL, 0xC1);
+    // imu.regWrite(FILT_CTRL, 0x04); // Set digital filter
+    // imu.regWrite(DEC_RATE, 0x00), // Disable decimation
 
     // Read the control registers once to print to screen
-    MSC = imu.regRead(MSC_CTRL);
-    FLTR = imu.regRead(FILT_CTRL);
-    DECR = imu.regRead(DEC_RATE);
+    // MSC = imu.regRead(MSC_CTRL);
+    // FLTR = imu.regRead(FILT_CTRL);
+    // DECR = imu.regRead(DEC_RATE);
     
     attachInterrupt(dr_pin, ISR, RISING);
 }

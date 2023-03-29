@@ -47,7 +47,7 @@ void loop() {
   // imu.update();
   if (iter_count>5) {
     Pose pose = imu.get_data();
-    // Serial.println(pose.pitch);
+    Serial.println(pose.x);
     iter_count = 0;
   }
   iter_count++;

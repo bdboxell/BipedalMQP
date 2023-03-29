@@ -18,9 +18,9 @@ class IMU {
         void get_data(Pose* pose);
         Pose get_data();
         void calibrate_pitch();
+        static void* IMU_obj; 
     private:
         static void ISR();
-        inline static void* IMU_obj; 
         void grabData();
         void scaleData();
         uint16_t *burstData;
@@ -37,5 +37,5 @@ class IMU {
         // Temperature
         float TEMPS = 0;
 
-        ADIS16470 imu = ADIS16470(cs_pin);
+        ADIS16470 imu = ADIS16470(cs_pin, dr_pin, rst_pin);
 };
