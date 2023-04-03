@@ -21,8 +21,12 @@ class MPU6050 {
 		unsigned long lastTimeStamp = millis();
         const float g = 10.1;
         const float fudge_factor = 16.7; //16.3
+		float roll_filter[2];
+		float pitch_filter[2];
+
 		void get_raw_data(Pose* pose);
 		void normalize_data(Pose* data);
+		void kalman_filter(float elapsed_s, float k_input, float k_measure, float* output);
 		Adafruit_MPU6050 mpu;
 	    Pose average_filter;
 };

@@ -90,8 +90,8 @@ void MPU6050::get_raw_data(Pose* pose) {
     sensors_event_t a, g, temp;
     mpu.getEvent(&a, &g, &temp);
 
-    pose->x = a.acceleration.y;
-    pose->y = a.acceleration.z;
+    pose->x = a.acceleration.z;
+    pose->y = a.acceleration.y;
     pose->z = a.acceleration.x;
     pose->pitch = g.gyro.y * RAD_TO_DEG;
     pose->roll = g.gyro.z * RAD_TO_DEG;
@@ -105,22 +105,31 @@ void MPU6050::update() {
     float elapsed = (millis() - lastTimeStamp)/1000.0;
     lastTimeStamp = millis();
 
-    cur_pose.pitch += raw_data.pitch*elapsed;
-    cur_pose.roll += raw_data.roll*elapsed;
-    cur_pose.yaw += raw_data.yaw*elapsed;
-
     cur_pose.x = raw_data.x;
     cur_pose.y = raw_data.y;
     cur_pose.z = raw_data.z;
+
+    float accel_pitch = atan(cur_pose.x/sqrt(cur_pose.y*cur_pose.y+cur_pose.z*cur_pose.z))*1/(3.142/180);
+    float accel_roll = -atan(cur_pose.y/sqrt(cur_pose.x*cur_pose.x+cur_pose.z*cur_pose.z))*1/(3.142/180);
+
+    kalman_filter(elapsed, raw_data.pitch, accel_pitch, pitch_filter);
+    kalman_filter(elapsed, raw_data.roll, accel_roll, roll_filter);
+    // Serial.println(accel_roll);
+    // cur_pose.pitch += raw_data.pitch*elapsed;
+    // cur_pose.roll += raw_data.roll*elapsed;
+    cur_pose.pitch = pitch_filter[0];
+    cur_pose.roll = roll_filter[0];
+    cur_pose.yaw += raw_data.yaw*elapsed;
 }
 
 void MPU6050::normalize_data(Pose* data) {
-    // data->x -= average_filter.x;
-    // data->y -= average_filter.y;
-    // data->z -= average_filter.z;
     data->roll -= average_filter.roll;
     data->pitch -= average_filter.pitch;
     data->yaw -= average_filter.yaw;
+    
+    data->x -= 0.5;
+    data->y += 0.23;
+    data->z -= 0.38;
 }
 
 void MPU6050::calibrate() {
@@ -149,6 +158,16 @@ void MPU6050::calibrate_pitch() {
   cur_pose.pitch += offset;//+fudge_factor;
 }
 
+void MPU6050::kalman_filter(float elapsed_s, float k_input, float k_measure, float* output) {
+  float k_state = output[0] + elapsed_s*k_input;
+  float k_uncertainty = output[1] + elapsed_s * elapsed_s * 4 * 4;
+  float k_gain = k_uncertainty * 1/(k_uncertainty + 3*3);
+  k_state = k_state + k_gain*(k_measure - k_state);
+  k_uncertainty = (1-k_gain) * k_uncertainty;
+  output[0] = k_state;
+  output[1] = k_uncertainty;
+}
+
 void MPU6050::get_data(Pose* pose) {
     pose->x = cur_pose.x;
     pose->y = cur_pose.y;
@@ -165,15 +184,15 @@ Pose MPU6050::get_data() {
 void MPU6050::print() {
     // Serial.print(" Roll = ");
     // Serial.print(cur_pose.roll);
-    Serial.print("\nPitch = ");
-    Serial.print(cur_pose.pitch);
+    // Serial.print("\nPitch = ");
+    // Serial.print(cur_pose.pitch);
     // Serial.print(" Yaw = ");
     // Serial.println(cur_pose.yaw);
     
-    // Serial.print(" X = ");
-    // Serial.print(cur_pose.x);
-    // Serial.print(" Y = ");
-    // Serial.print(cur_pose.y);
-    // Serial.print(" Z = ");
-    // Serial.println(cur_pose.z);
+    Serial.print(" X = ");
+    Serial.print(cur_pose.x);
+    Serial.print(" Y = ");
+    Serial.print(cur_pose.y);
+    Serial.print(" Z = ");
+    Serial.println(cur_pose.z);
 }
