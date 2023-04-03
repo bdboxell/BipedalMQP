@@ -11,7 +11,7 @@
 
 MotorInterface right_motor = MotorInterface(14, true);
 MotorInterface left_motor = MotorInterface(12, false);
-MPU6050 imu;
+IMU imu;
 Controller controller = Controller(33,32);
 
 //oscillation at kp = 3, ki = 0.01
@@ -44,7 +44,7 @@ void setup(void) {
 }
 
 void loop() {
-  imu.update();
+  // imu.update();
   if (iter_count>5) {
     Pose pose = imu.get_data();
     Serial.print(pose.pitch);
