@@ -1,5 +1,4 @@
 #include "MPU6050.h"
-#include <vector>
 
 using namespace std;
 
@@ -130,6 +129,12 @@ void MPU6050::normalize_data(Pose* data) {
     data->x -= 0.5;
     data->y += 0.23;
     data->z -= 0.38;
+
+    float arr[] = {data->roll, data->pitch, data->yaw};
+    float* output = rotate_x(arr, (float) 0.03);
+    data->roll = output[0];
+    data->pitch = output[1];
+    data->yaw = output[2];
 }
 
 void MPU6050::calibrate() {

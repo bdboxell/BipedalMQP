@@ -45,6 +45,10 @@ void setup(void) {
 
 void loop() {
   imu.update();
+  // int a[2][2] = {{1,2},{3,4}};
+  // int b[2][2] = {{5,6},{7,8}};
+  // multiply(a,b);
+  // Serial.println(dot_product(a,b));
   if (iter_count>5) {
     Pose pose = imu.get_data();
     Serial.print(pose.pitch);

@@ -2,6 +2,7 @@
 #define MathUtils
 
 #include <Arduino.h>
+#include <cmath>
 
 // Pose Struct
 // Used to define the pose of an object in space
@@ -40,7 +41,36 @@ T** multiply(T (&a)[N][M], T (&b)[O][P]) {
     }
     return output;
 }
- 
+
+// Returns a 2D array version of a 1D array
+template <class T, int N>
+T** get_2D_from_1D(T (&arr)[N], int cols) {
+    int rows = N / cols;
+    T** result = new T*[rows];
+    for (int i = 0; i < rows; i++) {
+        result[i] = new T[cols];
+        for (int j = 0; j < cols; j++) {
+            result[i][j] = arr[i * cols + j];
+        }
+    }
+    return result;
+}
+
+// // Rotates a given matrix by theta radians along the X axis
+// template <class T, int N>
+// T* rotate_x(T (&a)[N], T theta) {
+//     // Define 3D X-Rotation Matrix
+//     T rot[3][3] = {{1, 0, 0},
+//                     {0, cos(theta), -sin(theta)},
+//                     {0, sin(theta), cos(theta)}};
+//     T** multiply_result = multiply(get_2D_from_1D(a,1), rot);
+//     T result[3];
+//     for (int i = 0; i<3; i++) {
+//         result[i] = multiply_result[i][0];
+//     }
+//     return result;
+// }
+
 // Dot Product of Two Arrays
 // Returns a scalar output that is the dot product of two arrays
 template <class T, int N>
