@@ -12,17 +12,19 @@ IMU::~IMU() {
 void IMU::grabData()
 {
     burstData = {};
-    imu.configSPI();
+    // imu.configSPI();
     burstData = imu.wordBurst(); // Read data and insert into array
+    // Serial.println(imu.regRead(0x04));
 }
 
 void IMU::init() {
     IMU_obj = this;
+    imu.resetDUT(10);
     imu.configSPI();
     delay(500);
-    // imu.regWrite(MSC_CTRL, 0xC1);
-    // imu.regWrite(FILT_CTRL, 0x04); // Set digital filter
-    // imu.regWrite(DEC_RATE, 0x00), // Disable decimation
+    imu.regWrite(MSC_CTRL, 0xC1);
+    imu.regWrite(FILT_CTRL, 0x04); // Set digital filter
+    imu.regWrite(DEC_RATE, 0x00), // Disable decimation
 
     // Read the control registers once to print to screen
     // MSC = imu.regRead(MSC_CTRL);
