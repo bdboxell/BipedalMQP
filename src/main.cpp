@@ -9,14 +9,17 @@
 #include "Controller.h"
 // #include "MathUtils.h"
 
-MotorInterface right_motor = MotorInterface(14, true);
-MotorInterface left_motor = MotorInterface(12, false);
+MotorInterface right_motor = MotorInterface(14, false);
+MotorInterface left_motor = MotorInterface(12, true);
 IMU imu;
 Controller controller = Controller(33,32);
 
 //oscillation at kp = 3, ki = 0.01
-// PID balance_pid = pid_init(1, 0.04, 150);
-PID balance_pid = pid_init(4, 0.025, 0.25);
+
+// PID balance_pid = pid_init(6, 90, 0.28, 0.05, 20);
+PID balance_pid = pid_init(5, 25, 0.25, 0.5, 20, 99999);
+
+
 
 
 String serial_in = "";
@@ -40,6 +43,7 @@ void setup(void) {
   imu.init();
   imu.calibrate();
   delay(500);
+  imu.reset();
   // imu.calibrate_pitch();
 }
 
@@ -47,21 +51,27 @@ void loop() {
   // imu.update();
   if (iter_count>5) {
     Pose pose = imu.get_data();
-    Serial.print(pose.pitch);
-    Serial.print(", ");
-    Serial.print(pose.roll);
-    Serial.print(", ");
-    Serial.println(pose.yaw);
+    // Serial.print(pose.pitch);
+    // Serial.print(", ");
+    // Serial.print(pose.roll);
+    // Serial.print(", ");
+    // Serial.print(pose.yaw);
+    // Serial.print(", ");
+    // Serial.print(pose.x);
+    // Serial.print(", ");
+    // Serial.print(pose.y);
+    // Serial.print(", ");
+    // Serial.println(pose.z);
 
     iter_count = 0;
   }
   iter_count++;
   // imu.print();
   // // input();
-  // balance();
+  balance();
   // Serial.println(controller.get_steering());
   // Serial.println(controller.get_throttle());
-  delay(10);
+  delay(5);
 }
 
 void input() {
@@ -82,14 +92,18 @@ void balance() {
  
   float left_input, right_input = 0;
   float input_gain = 0.4;
-  left_input = (controller.get_steering()) * input_gain;
-  right_input = (controller.get_steering()) * input_gain;
+  // left_input = (controller.get_steering()) * input_gain;
+  // right_input = (controller.get_steering()) * input_gain;
 
-  float target_angle = -controller.get_throttle()*0.08;
+  left_input = 0;
+  right_input = 0;
+
+  // float target_angle = -controller.get_throttle()*0.08;
+  float target_angle = 0;
 
   Pose pose = imu.get_data();
 
-  float max = 50;
+  float max = 45;
 
   if(serial_in == "w") {
     target_angle = 2;

@@ -244,7 +244,7 @@ int16_t ADIS16470::checksum(uint16_t * burstArray) {
 /////////////////////////////////////////////////////////////////////////////////////////
 float ADIS16470::accelScale(int16_t sensorData)
 {
-  float finalData = sensorData * 0.00125; // Multiply by accel sensitivity (0.00125g/LSB)
+  float finalData = sensorData * 0.0125; // Multiply by accel sensitivity (0.00125g/LSB)
   return finalData;
 }
 
