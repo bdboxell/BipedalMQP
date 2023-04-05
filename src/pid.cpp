@@ -1,26 +1,26 @@
 #include "pid.h"
 #include "Arduino.h"
 
-float pid_calculate(PID* pid, float target, float current) {
-    float error = target - current;
+double pid_calculate(PID* pid, double target, double current) {
+    double error = target - current;
 
-    float delta_t = (millis() - pid->last_time)/1000.0;
+    double delta_t = (millis() - pid->last_time)/1000.0;
     pid->sum += error*delta_t;
     
     if (!(pid->set)) {
         pid->last_error = error;
     }
 
-    float pTerm = pid->kP*error;
-    float iTerm = pid->kI*pid->sum;
-    float dTerm = pid->kD*(error - pid->last_error)/delta_t;
+    double pTerm = pid->kP*error;
+    double iTerm = pid->kI*pid->sum;
+    double dTerm = pid->kD*(error - pid->last_error)/delta_t;
 
     iTerm = (iTerm/fabs(iTerm))*((fabs(iTerm) > pid->max_i)? pid->max_i : fabs(iTerm));
 
     if (fabs(error)< pid->epsilon_inner || fabs(error) > pid->epsilon_outer) {
-        iTerm = 0;
+        // iTerm = 0;
         // dTerm = 0;
-        pid->sum = 0;
+        pid->sum = pid->sum*0.9;
     }
 
     Serial.print(pTerm);
@@ -29,7 +29,7 @@ float pid_calculate(PID* pid, float target, float current) {
     Serial.print(",\t");
     Serial.print(dTerm);
 
-    float output = pTerm + iTerm + dTerm;
+    double output = pTerm + iTerm + dTerm;
     Serial.print(",\t");
     Serial.println(output);
     pid->last_error = error;
@@ -50,7 +50,7 @@ void reset_pid(PID* pid) {
     pid->set = millis();
 }
 
-PID pid_init(float kP, float kI, float kD) {
+PID pid_init(double kP, double kI, double kD) {
     PID pid;
     pid.kP = kP;
     pid.kI = kI;
@@ -58,7 +58,7 @@ PID pid_init(float kP, float kI, float kD) {
     pid.last_time = millis();
     return pid;
 }
-PID pid_init(float kP, float kI, float kD, float epsilon_inner, float epsilon_outer, float max_i) {
+PID pid_init(double kP, double kI, double kD, double epsilon_inner, double epsilon_outer, double max_i) {
     PID pid;
     pid.kP = kP;
     pid.kI = kI;

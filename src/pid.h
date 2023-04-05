@@ -1,15 +1,15 @@
 struct PID {
-    float kP, kI, kD;
-    float epsilon_inner = 0;
-    float epsilon_outer = 99999;
-    float last_error = 0;
-    float max_i = 999999;
-    float sum = 0;
+    double kP, kI, kD;
+    double epsilon_inner = 0;
+    double epsilon_outer = 99999;
+    double last_error = 0;
+    double max_i = 999999;
+    double sum = 0;
     bool set = false;
     unsigned long last_time;
 };
 
-float pid_calculate(PID* pid, float target, float current);
+double pid_calculate(PID* pid, double target, double current);
 void reset_pid(PID* pid);
-PID pid_init(float kP, float kI, float kD);
-PID pid_init(float kP, float kI, float kD, float epsilon_inner, float epsilon_outer, float max_i);
+PID pid_init(double kP, double kI, double kD);
+PID pid_init(double kP, double kI, double kD, double epsilon_inner, double epsilon_outer, double max_i);

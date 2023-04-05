@@ -17,7 +17,7 @@ Controller controller = Controller(33,32);
 //oscillation at kp = 3, ki = 0.01
 
 // PID balance_pid = pid_init(6, 90, 0.28, 0.05, 20);
-PID balance_pid = pid_init(5, 25, 0.25, 0.5, 20, 99999);
+PID balance_pid = pid_init(50, 750, 3.2, 0.015, 0.75, 99999);
 
 
 
@@ -34,6 +34,7 @@ void input();
 float last_power = 0;
 
 int iter_count = 0;
+bool active = false;
 
 void setup(void) {
 
@@ -50,7 +51,7 @@ void setup(void) {
 void loop() {
   // imu.update();
   if (iter_count>5) {
-    Pose pose = imu.get_data();
+    // Pose pose = imu.get_data();
     // Serial.print(pose.pitch);
     // Serial.print(", ");
     // Serial.print(pose.roll);
@@ -67,8 +68,12 @@ void loop() {
   }
   iter_count++;
   // imu.print();
-  // // input();
-  balance();
+  input();
+  Pose pose = imu.get_data();
+  if (!active && fabs(pose.pitch) < 0.1)
+    active = true;
+  if (active)
+    balance();
   // Serial.println(controller.get_steering());
   // Serial.println(controller.get_throttle());
   delay(5);
@@ -103,7 +108,7 @@ void balance() {
 
   Pose pose = imu.get_data();
 
-  float max = 45;
+  float max = 100;
 
   if(serial_in == "w") {
     target_angle = 2;
@@ -115,7 +120,8 @@ void balance() {
   }
   
   if (fabs(pose.pitch) < 20) {
-    float power = pid_calculate(&balance_pid, target_angle, pose.pitch);
+    double com_displace = 4.5*sin(pose.pitch*DEG_TO_RAD);
+    float power = pid_calculate(&balance_pid, target_angle, com_displace);
     float exponent = 1;
     power = ((power < 0)? -1: 1)*fabs(pow(power/100, exponent))*100;
     // last_power = power;

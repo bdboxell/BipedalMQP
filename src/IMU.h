@@ -51,5 +51,5 @@ class IMU {
 		double pitch_filter[2];
         void kalman_filter(double elapsed_s, double k_input, double k_measure, double* output);
 
-        double pitch_offset = 10.45;
+        double pitch_offset = 10.8; //9.45 for level ground, 11.45 for desk
 };
