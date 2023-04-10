@@ -9,29 +9,34 @@ double pid_calculate(PID* pid, double target, double current) {
     
     if (!(pid->set)) {
         pid->last_error = error;
+        pid->set = true;
     }
+
+    double delta_error = (error - pid->last_error)/delta_t;
+    delta_error = pid->get_filtered_velocity(delta_error);
 
     double pTerm = pid->kP*error;
     double iTerm = pid->kI*pid->sum;
-    double dTerm = pid->kD*(error - pid->last_error)/delta_t;
+    double dTerm = pid->kD*delta_error;
 
     iTerm = (iTerm/fabs(iTerm))*((fabs(iTerm) > pid->max_i)? pid->max_i : fabs(iTerm));
-
-    if (fabs(error)< pid->epsilon_inner || fabs(error) > pid->epsilon_outer) {
+    // Serial.println(pid->epsilon_inner);
+    // I stutters a lot when it passes this band. Maybe add another qualifier to the if statement for if the rate of change of the error is below a threshhold
+    if ((fabs(delta_error) < 0.2 && fabs(error) < pid->epsilon_inner) || fabs(error) > pid->epsilon_outer) {
         // iTerm = 0;
         // dTerm = 0;
-        pid->sum = pid->sum*0.9;
+        pid->sum = pid->sum*0.95;
+        // Serial.println("Resetting I!");
     }
 
-    Serial.print(pTerm);
-    Serial.print(",\t");
-    Serial.print(iTerm);
-    Serial.print(",\t");
-    Serial.print(dTerm);
-
     double output = pTerm + iTerm + dTerm;
-    Serial.print(",\t");
-    Serial.println(output);
+    // Serial.print(pTerm);
+    // Serial.print(",\t");
+    // Serial.print(iTerm);
+    // Serial.print(",\t");
+    // Serial.print(dTerm);
+    // Serial.print(",\t");
+    // Serial.println(output);
     pid->last_error = error;
     pid->last_time = millis();
     // Serial.print("kP: ");

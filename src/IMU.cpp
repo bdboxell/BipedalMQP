@@ -24,7 +24,7 @@ void IMU::init() {
     delay(500);
     imu.regWrite(MSC_CTRL, 0xC1);
     imu.regWrite(FILT_CTRL, 0x04); // Set digital filter
-    imu.regWrite(DEC_RATE, 0x00), // Disable decimation
+    imu.regWrite(DEC_RATE, 0x00); // Disable decimation
 
     // Read the control registers once to print to screen
     // MSC = imu.regRead(MSC_CTRL);
@@ -44,7 +44,27 @@ void IMU::ISR() {
         ((IMU*) IMU_obj)->scaleData();
         // Pose data = ((IMU*) IMU_obj)->get_data();
         ((IMU*) IMU_obj)->updateData();
+        ((IMU*) IMU_obj)->lastTimeStamp = micros();
     }
+}
+
+// void IMU::update() {
+//     // Serial.println("ISR");
+//     int delta_t = micros() - lastTimeStamp;
+//     if (delta_t > 500) {
+//         grabData();
+//         scaleData();
+//         // Pose data = get_data();
+//         updateData();
+//         lastTimeStamp = micros();
+//     }
+// }
+// void IMU::remove_interrupt() {
+//     detachInterrupt(digitalPinToInterrupt(dr_pin));
+// }
+
+void IMU::adjust_offset(double value) {
+    pitch_offset+=value;
 }
 
 void IMU::updateData() {

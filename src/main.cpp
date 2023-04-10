@@ -12,15 +12,12 @@
 MotorInterface right_motor = MotorInterface(14, false);
 MotorInterface left_motor = MotorInterface(12, true);
 IMU imu;
-Controller controller = Controller(33,32);
+// Controller controller = Controller(35,34);
 
 //oscillation at kp = 3, ki = 0.01
 
-// PID balance_pid = pid_init(6, 90, 0.28, 0.05, 20);
-PID balance_pid = pid_init(50, 750, 3.2, 0.015, 0.75, 99999);
-
-
-
+PID balance_pid = pid_init(45, 800, 3.2, 0.015, 0.75, 99999); //This was used in the youtube short
+// PID balance_pid = pid_init(40, 825, 3.1, 0.015, 0.75, 99999);
 
 String serial_in = "";
 
@@ -43,15 +40,17 @@ void setup(void) {
   delay(300);
   imu.init();
   imu.calibrate();
+  // imu.remove_interrupt();
   delay(500);
   imu.reset();
   // imu.calibrate_pitch();
+  // controller.init();
 }
 
 void loop() {
   // imu.update();
   if (iter_count>5) {
-    // Pose pose = imu.get_data();
+    Pose pose = imu.get_data();
     // Serial.print(pose.pitch);
     // Serial.print(", ");
     // Serial.print(pose.roll);
@@ -74,9 +73,11 @@ void loop() {
     active = true;
   if (active)
     balance();
-  // Serial.println(controller.get_steering());
+  // float out = controller.get_steering();
   // Serial.println(controller.get_throttle());
-  delay(5);
+  // Serial.print(", ");
+  // Serial.println(controller.get_throttle());
+  delay(2);
 }
 
 void input() {
@@ -104,6 +105,8 @@ void balance() {
   right_input = 0;
 
   // float target_angle = -controller.get_throttle()*0.08;
+
+  // float power_addend = controller.get_throttle()*0.1;
   float target_angle = 0;
 
   Pose pose = imu.get_data();
@@ -118,15 +121,24 @@ void balance() {
   else if (serial_in == "s") {
     logging = !logging;
   }
+  else if (serial_in == "u") {
+    Serial.println("Biasing more forward!");
+    imu.adjust_offset(0.05);
+  }
+  else if (serial_in == "d") {
+    Serial.println("Biasing more backward!");
+    imu.adjust_offset(-0.05);
+  }
   
   if (fabs(pose.pitch) < 20) {
     double com_displace = 4.5*sin(pose.pitch*DEG_TO_RAD);
     float power = pid_calculate(&balance_pid, target_angle, com_displace);
     float exponent = 1;
     power = ((power < 0)? -1: 1)*fabs(pow(power/100, exponent))*100;
+    // power += power_addend;
     // last_power = power;
 
-    float left_power = power+left_input;
+    float left_power = power-left_input;
     float right_power = power+right_input;
 
     if (left_power>max) {

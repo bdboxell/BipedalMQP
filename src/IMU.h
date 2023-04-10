@@ -24,6 +24,9 @@ class IMU {
         Pose raw_data;
         Pose cur_pose;
         unsigned long lastTimeStamp = millis();
+        void adjust_offset(double value);
+        void remove_interrupt();
+        void update();
 
 
     private:
@@ -51,5 +54,5 @@ class IMU {
 		double pitch_filter[2];
         void kalman_filter(double elapsed_s, double k_input, double k_measure, double* output);
 
-        double pitch_offset = 10.8; //9.45 for level ground, 11.45 for desk
+        double pitch_offset = 10.05; //9.45 for level ground, 11.45 for desk
 };

@@ -7,6 +7,18 @@ struct PID {
     double sum = 0;
     bool set = false;
     unsigned long last_time;
+    double velocity_filter[5] = {0,0,0,0,0};
+
+    double get_filtered_velocity(double new_val) {
+        double sum = 0;
+        for (int i = 0 ; i< 4; i++) {
+            velocity_filter[i] = velocity_filter[i+1];
+            sum+=velocity_filter[i];
+        }
+        sum+=new_val;
+        velocity_filter[4] = new_val;
+        return sum/5;
+    }
 };
 
 double pid_calculate(PID* pid, double target, double current);
