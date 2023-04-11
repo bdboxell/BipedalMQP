@@ -17,7 +17,8 @@ Controller controller = Controller(35,32);
 //oscillation at kp = 3, ki = 0.01
 
 // PID balance_pid = pid_init(45, 800, 3.2, 0.015, 0.75, 99999); //This was used in the youtube short
-PID balance_pid = pid_init(45, 950, 3.6, 0.015, 0.75, 99999); 
+// PID balance_pid = pid_init(45, 1000, 3.6, 0.015, 0.75, 99999); //This stood up for 3 min
+PID balance_pid = pid_init(45, 1000, 3.8, 0.015, 0.75, 99999); 
 
 
 String serial_in = "";
@@ -37,7 +38,7 @@ bool active = false;
 float target_speed = 0;
 float target_angle = 0;
 float left_input, right_input = 0;
-const int filter_size = 20;
+const int filter_size = 100;
 double velocity_filter[filter_size];
 int control_state = 0; //0 stopped, -1 backwards, 1 forwards
 
@@ -122,25 +123,23 @@ void balance() {
 
   if(serial_in == "w") {
     Serial.println("Forward!");
-    target_speed = 6;
-    target_angle = -0.05;
+    target_speed = 5;
     control_state = 1;
   }
   else if(serial_in == "s") {
     Serial.println("Backward!");
-    target_angle = 0.05;
     target_speed = -6;
     control_state = -1;
   }
   else if(serial_in == "a") {
     Serial.println("Left!");
-    left_input-=3;
-    right_input+=3;
+    left_input-=2;
+    right_input+=2;
   }
   else if(serial_in == "d") {
     Serial.println("Right!");
-    left_input+=3;
-    right_input-=3;
+    left_input+=2;
+    right_input-=2;
   }
   else if(serial_in == "x") {
     Serial.println("Stop!");
@@ -165,7 +164,7 @@ void balance() {
   
   if (fabs(pose.pitch) < 20) {
     double com_displace = 4.5*sin(pose.pitch*DEG_TO_RAD);
-    float power = pid_calculate(&balance_pid, target_angle, com_displace) + 1500*sin(target_angle*DEG_TO_RAD);
+    float power = pid_calculate(&balance_pid, target_angle, com_displace) - 3000*sin(target_angle*DEG_TO_RAD);
     
     float exponent = 1;
     power = ((power < 0)? -1: 1)*fabs(pow(power/100, exponent))*100;
@@ -173,11 +172,11 @@ void balance() {
     double speed = average_speed(power);
     if (control_state == 1 && speed > target_speed) {
       // Serial.println("Stabilizing!");
-      target_angle = -0.03;
+      target_angle = -0.02;
       power_addend = target_speed;
     }
     else if (control_state ==1 && speed < target_speed) {
-      target_angle = -0.08;
+      target_angle = -0.05;
       power_addend = 0;
     }
 
@@ -187,7 +186,7 @@ void balance() {
       power_addend = target_speed;
     }
     else if (control_state == -1 && speed > target_speed) {
-      target_angle = 0.08;
+      target_angle = 0.09;
       power_addend = 0;
     }
     
