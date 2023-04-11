@@ -8,11 +8,11 @@ PWMMonitor::PWMMonitor() {
     // PWM_obj = this;
 }
 
-void PWMMonitor::init(int p) {
+void PWMMonitor::init(int p, void* imu_ref) {
     pin = p;   
+    IMU_obj = imu_ref;
     PWM_obj = this;
     Serial.println("PWM_Obj Updated!");
-
     pinMode(pin, INPUT);
     attachInterrupt(p, falling_edge_ISR, CHANGE);
 }
@@ -31,7 +31,7 @@ void PWMMonitor::rising_edge_ISR() {
 }
 
 void PWMMonitor::falling_edge_ISR() {
-    if (!digitalRead(pin)) {
+    if (is_high) {
         // Serial.println("Falling");
         ((PWMMonitor*) PWM_obj)->falling_edge();
     }

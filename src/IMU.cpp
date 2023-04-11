@@ -48,20 +48,24 @@ void IMU::ISR() {
     }
 }
 
-// void IMU::update() {
-//     // Serial.println("ISR");
-//     int delta_t = micros() - lastTimeStamp;
-//     if (delta_t > 500) {
-//         grabData();
-//         scaleData();
-//         // Pose data = get_data();
-//         updateData();
-//         lastTimeStamp = micros();
-//     }
-// }
-// void IMU::remove_interrupt() {
-//     detachInterrupt(digitalPinToInterrupt(dr_pin));
-// }
+void IMU::update() {
+    // Serial.println("ISR");
+    int delta_t = micros() - lastTimeStamp;
+    if (delta_t > 500) {
+        grabData();
+        scaleData();
+        // Pose data = get_data();
+        updateData();
+        lastTimeStamp = micros();
+    }
+}
+void IMU::remove_interrupt() {
+    detachInterrupt(digitalPinToInterrupt(dr_pin));
+}
+
+void IMU::enable_interrupt() {
+    attachInterrupt(dr_pin, ISR, RISING);
+}
 
 void IMU::adjust_offset(double value) {
     pitch_offset+=value;

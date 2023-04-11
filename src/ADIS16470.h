@@ -107,5 +107,4 @@ class ADIS16470 {
     int _DR;
     int _RST;
     int _stall = 20;
-
 };

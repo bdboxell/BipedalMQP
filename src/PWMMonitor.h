@@ -1,10 +1,11 @@
 #include "Arduino.h"
+#include "IMU.h"
 
 class PWMMonitor {
     public:
         PWMMonitor();
         int get_wavelength();
-        void init(int p);
+        void init(int p, void* imu_ref);
         static void* PWM_obj;
 
     private:
@@ -16,4 +17,5 @@ class PWMMonitor {
         static void falling_edge_ISR();
         static int pin;
         static bool is_high;
+        void* IMU_obj;
 };

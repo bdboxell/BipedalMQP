@@ -6,11 +6,11 @@ class Controller {
         Controller(int t_pin, int s_pin);
         float get_throttle();
         float get_steering();
-        void init();
+        void init(void* imu_ref);
 
     private:
         PWMMonitor thr_monitor = PWMMonitor();
-        PWMMonitor str_monitor = PWMMonitor();
+        // PWMMonitor str_monitor = PWMMonitor();
 
         const float ms_min = 1000;
         const float ms_max = 2000;
