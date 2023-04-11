@@ -2,6 +2,7 @@
 
 #define ADIS16470_h
 #include "Arduino.h"
+#include "MathUtils.h"
 #include <SPI.h>
 
 // User Register Memory Map from Table 6
@@ -106,5 +107,4 @@ class ADIS16470 {
     int _DR;
     int _RST;
     int _stall = 20;
-
 };

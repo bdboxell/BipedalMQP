@@ -1,26 +1,42 @@
 #include "pid.h"
 #include "Arduino.h"
 
-float pid_calculate(PID* pid, float target, float current) {
-    float error = target - current;
+double pid_calculate(PID* pid, double target, double current) {
+    double error = target - current;
 
-    if (error<0.1) pid->sum = 0;
-    float delta_t = (millis() - pid->last_time)/1000.0;
+    double delta_t = (millis() - pid->last_time)/1000.0;
     pid->sum += error*delta_t;
+    
     if (!(pid->set)) {
         pid->last_error = error;
+        pid->set = true;
     }
 
-    float pTerm = pid->kP*error;
-    float iTerm = pid->kI*pid->sum;
-    float dTerm = pid->kD*(error - pid->last_error)/delta_t;
+    double delta_error = (error - pid->last_error)/delta_t;
+    delta_error = pid->get_filtered_velocity(delta_error);
 
-    if (fabs(current)< pid->epsilon_inner || fabs(current) > pid->epsilon_outer) {
-        iTerm = 0;
-        pid->sum = 0;
+    double pTerm = pid->kP*error;
+    double iTerm = pid->kI*pid->sum;
+    double dTerm = pid->kD*delta_error;
+
+    iTerm = (iTerm/fabs(iTerm))*((fabs(iTerm) > pid->max_i)? pid->max_i : fabs(iTerm));
+    // Serial.println(pid->epsilon_inner);
+    // I stutters a lot when it passes this band. Maybe add another qualifier to the if statement for if the rate of change of the error is below a threshhold
+    if ((fabs(delta_error) < 0.2 && fabs(error) < pid->epsilon_inner) || fabs(error) > pid->epsilon_outer) {
+        // iTerm = 0;
+        // dTerm = 0;
+        pid->sum = pid->sum*0.95;
+        // Serial.println("Resetting I!");
     }
 
-    float output = pTerm + iTerm + dTerm;
+    double output = pTerm + iTerm + dTerm;
+    // Serial.print(pTerm);
+    // Serial.print(",\t");
+    // Serial.print(iTerm);
+    // Serial.print(",\t");
+    // Serial.print(dTerm);
+    // Serial.print(",\t");
+    // Serial.println(output);
     pid->last_error = error;
     pid->last_time = millis();
     // Serial.print("kP: ");
@@ -39,7 +55,7 @@ void reset_pid(PID* pid) {
     pid->set = millis();
 }
 
-PID pid_init(float kP, float kI, float kD) {
+PID pid_init(double kP, double kI, double kD) {
     PID pid;
     pid.kP = kP;
     pid.kI = kI;
@@ -47,13 +63,14 @@ PID pid_init(float kP, float kI, float kD) {
     pid.last_time = millis();
     return pid;
 }
-PID pid_init(float kP, float kI, float kD, float epsilon_inner, float epsilon_outer) {
+PID pid_init(double kP, double kI, double kD, double epsilon_inner, double epsilon_outer, double max_i) {
     PID pid;
     pid.kP = kP;
     pid.kI = kI;
     pid.kD = kD;
     pid.epsilon_inner = epsilon_inner;
     pid.epsilon_outer = epsilon_outer;
+    pid.max_i = max_i;
     pid.last_time = millis();
     return pid;
 }

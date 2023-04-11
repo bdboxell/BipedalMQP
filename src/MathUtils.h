@@ -6,12 +6,12 @@
 // Pose Struct
 // Used to define the pose of an object in space
 struct Pose {
-    float pitch = 0;
-    float roll = 0;
-    float yaw = 0;
-    float x = 0;
-    float y = 0;
-    float z = 0;
+    double pitch = 0;
+    double roll = 0;
+    double yaw = 0;
+    double x = 0;
+    double y = 0;
+    double z = 0;
 };
 
 // Matrix Multiplication Function
