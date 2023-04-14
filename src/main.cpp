@@ -17,8 +17,9 @@ Controller controller = Controller(35,32);
 //oscillation at kp = 3, ki = 0.01
 
 // PID balance_pid = pid_init(45, 800, 3.2, 0.015, 0.75, 99999); //This was used in the youtube short
-// PID balance_pid = pid_init(45, 1000, 3.6, 0.015, 0.75, 99999); //This stood up for 3 min
-PID balance_pid = pid_init(45, 1000, 3.8, 0.015, 0.75, 99999); 
+PID balance_pid = pid_init(45, 1000, 3.8, 0.015, 0.75, 99999); //Demo'd to Agheli
+// PID balance_pid = pid_init(120, 875, 0.625, 0.015, 0.75, 99999); //P Heavy Testing , Ku = 125
+
 
 
 String serial_in = "";
@@ -38,7 +39,7 @@ bool active = false;
 float target_speed = 0;
 float target_angle = 0;
 float left_input, right_input = 0;
-const int filter_size = 100;
+const int filter_size = 50;
 double velocity_filter[filter_size];
 int control_state = 0; //0 stopped, -1 backwards, 1 forwards
 
@@ -123,12 +124,12 @@ void balance() {
 
   if(serial_in == "w") {
     Serial.println("Forward!");
-    target_speed = 5;
+    target_speed = 7;
     control_state = 1;
   }
   else if(serial_in == "s") {
     Serial.println("Backward!");
-    target_speed = -6;
+    target_speed = -5;
     control_state = -1;
   }
   else if(serial_in == "a") {
@@ -172,11 +173,11 @@ void balance() {
     double speed = average_speed(power);
     if (control_state == 1 && speed > target_speed) {
       // Serial.println("Stabilizing!");
-      target_angle = -0.02;
+      target_angle = -0.04;
       power_addend = target_speed;
     }
     else if (control_state ==1 && speed < target_speed) {
-      target_angle = -0.05;
+      target_angle = -0.08;
       power_addend = 0;
     }
 
@@ -216,11 +217,11 @@ void balance() {
     int pwm = right_motor.write_percent(right_power);
     left_motor.write_percent(left_power);
 
-    if(logging) {
+    if(logging&&iter_count>5) {
       DataPacket packet;
       packet.add_data("pitch", pose.pitch);
       packet.add_data("power", power);
-      packet.add_data("pwm", pwm);
+      packet.add_data("target_angle", target_angle);
 
       packet.write_to_serial();
     }
