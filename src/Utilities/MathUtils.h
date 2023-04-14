@@ -14,6 +14,22 @@ struct Pose {
     double z = 0;
 };
 
+// Bounds a value to within a given range
+template <class T>
+T bound(T val, T max, T min) {
+    if (val > max) return max;
+    else if (val < min) return min;
+    else return val;
+}
+
+// Bounds a value to a maximum absolute value
+template <class T>
+T bound (T val, T abs_max) {
+    if (val > abs_max) return abs_max;
+    else if (val < -abs_max) return -abs_max;
+    else return val;
+}
+
 // Matrix Multiplication Function
 // Returns a pointer 2D array output
 template <class T, int N, int M, int O, int P>

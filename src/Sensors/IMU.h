@@ -1,10 +1,10 @@
 // #include <Teensy_ADIS16470.h>
 #pragma once
 
-#include <ADIS16470.h>
+#include "ADIS16470.h"
 #include <SPI.h>
 #include <Wire.h>
-#include <MathUtils.h>
+#include "../Utilities/MathUtils.h"
 #include <Arduino.h>
 
 #define cs_pin 5

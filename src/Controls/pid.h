@@ -1,13 +1,19 @@
+#pragma once
+
+#include "../Utilities/DataPacket.h"
+#include "../Utilities/MathUtils.h"
+
 struct PID {
     double kP, kI, kD;
     double epsilon_inner = 0;
     double epsilon_outer = 99999;
     double last_error = 0;
     double max_i = 999999;
+    double p_term, i_term, d_term, output = 0.0;
     double sum = 0;
     bool set = false;
     unsigned long last_time;
-    double velocity_filter[5] = {0,0,0,0,0};
+    double velocity_filter[3] = {0,0,0};
 
     double get_filtered_velocity(double new_val) {
         double sum = 0;
@@ -23,5 +29,8 @@ struct PID {
 
 double pid_calculate(PID* pid, double target, double current);
 void reset_pid(PID* pid);
+void log_pid(PID* pid, DataPacket* packet);
 PID pid_init(double kP, double kI, double kD);
 PID pid_init(double kP, double kI, double kD, double epsilon_inner, double epsilon_outer, double max_i);
+
+void pid_init(PID* pid, double kP, double kI, double kD, double epsilon_inner, double epsilon_outer, double max_i);
