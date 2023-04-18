@@ -22,6 +22,7 @@ class MotorInterface {
     public:
         MotorInterface(int pin);
         MotorInterface(int pin, bool rev);
+        MotorInterface(int pin, bool rev, int ms_min, int ms_max);
         int write_percent(float pct);
         int update();
         void stop();

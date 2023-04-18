@@ -8,10 +8,12 @@
 #include "Utilities/DataPacket.h"
 #include "Sensors/Controller.h"
 #include "Controls/Balance.h"
+#include "Controls/LegControl.h"
 
 IMU imu;
 Controller controller = Controller(35,32);
 Balance balance_control = Balance();
+LegControl legs = LegControl();
 
 void handle_input();
 
@@ -20,6 +22,8 @@ bool active = false;
 void setup(void) {
   Serial.begin(115200);
   delay(300);
+  legs.init();
+  delay(1000);
   imu.init();
   imu.calibrate();
   delay(500);
@@ -35,15 +39,24 @@ void loop() {
 
   // Run balance controller if applicable
   Pose pose = imu.get_data();
-  if (!active && fabs(pose.pitch) < 0.1)
+  if (!active && fabs(pose.pitch) < 10) // should be 0.1
     active = true;
   if (active && fabs(pose.pitch) < 20) {
-    balance_control.balance(&pose, &packet);
+    // balance_control.balance(&pose, &packet);
+    legs.set_target_height(50);
+    legs.balance_roll(&pose);
   }
   else {
     balance_control.reset();
+    legs.scrunch();
   }
-  
+
+  // Leg Testing  
+  // legs.write_height(100,100);
+  // delay(2000);
+  // legs.write_height(0,0);
+  // delay(2000);
+
   //delay to maintain loop integrity
   delay(2); //absolutely has to be 2ms update or PID breaks
 }

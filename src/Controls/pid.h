@@ -13,7 +13,7 @@ struct PID {
     double sum = 0;
     bool set = false;
     unsigned long last_time;
-    double velocity_filter[3] = {0,0,0};
+    double velocity_filter[5] = {0,0,0,0,0};
 
     double get_filtered_velocity(double new_val) {
         double sum = 0;

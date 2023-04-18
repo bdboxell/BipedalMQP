@@ -9,8 +9,8 @@ void Balance::init()
 {
     // PID balance_pid = pid_init(45, 800, 3.2, 0.015, 0.75, 99999); //This was used in the youtube short
     // PID balance_pid = pid_init(120, 875, 0.625, 0.015, 0.75, 99999); //P Heavy Testing , Ku = 125
-    // balance_pid = pid_init(45, 1000, 3.8, 0.015, 0.75, 99999); // Demo'd to Agheli
-    balance_pid = pid_init(45, 890, 5, 0.015, 0.75, 99999); // Carpet Testing
+    balance_pid = pid_init(45, 1000, 3.8, 0.015, 0.75, 99999); // Demo'd to Agheli
+    // balance_pid = pid_init(45, 890, 5, 0.015, 0.75, 99999); // Carpet Testing
 
     angle_pid = pid_init(1.0,1.0,1.0,0,99999,99999);
 }
@@ -49,7 +49,7 @@ void Balance::balance(Pose *pose, DataPacket* packet)
         packet->add_data("power", power);
         packet->add_data("target_angle", target_angle);
         packet->add_data("speed", cur_speed);
-        log_pid(&angle_pid, packet);
+        // log_pid(&angle_pid, packet);
 
         // Limit the data logging to 5 iterations = 10ms refresh rate
         if (iter_count > 5)

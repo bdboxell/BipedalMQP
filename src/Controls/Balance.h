@@ -3,6 +3,10 @@
 #include "../Utilities/MathUtils.h"
 #include "../Utilities/DataPacket.h"
 
+#define left_drive_motor_pin 12
+#define right_drive_motor_pin 13
+
+
 class Balance {
     public:
         Balance();
@@ -20,8 +24,8 @@ class Balance {
         PID balance_pid;
         PID angle_pid;
 
-        MotorInterface right_motor = MotorInterface(14, false);
-        MotorInterface left_motor = MotorInterface(12, true);
+        MotorInterface right_motor = MotorInterface(right_drive_motor_pin, false);
+        MotorInterface left_motor = MotorInterface(left_drive_motor_pin, true);
 
         const static int filter_size = 500;
         double velocity_sum = 0;
