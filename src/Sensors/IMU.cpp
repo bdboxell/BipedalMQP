@@ -1,4 +1,4 @@
-#include <IMU.h>
+#include "IMU.h"
 
 void* IMU::IMU_obj = nullptr;
 
@@ -25,38 +25,24 @@ void IMU::init() {
     imu.regWrite(MSC_CTRL, 0xC1);
     imu.regWrite(FILT_CTRL, 0x04); // Set digital filter
     imu.regWrite(DEC_RATE, 0x00); // Disable decimation
-
-    // Read the control registers once to print to screen
-    // MSC = imu.regRead(MSC_CTRL);
-    // FLTR = imu.regRead(FILT_CTRL);
-    // DECR = imu.regRead(DEC_RATE);
     
     attachInterrupt(dr_pin, ISR, RISING);
 }
 
 // Called on every rising edge of Data Ready Pin
-// Handles all IMU data updating in the background
+// Sets a flag to update data in the main loop
 void IMU::ISR() {
-    // Serial.println("ISR");
-    int delta_t = micros() - ((IMU*) IMU_obj)->lastTimeStamp;
-    if (delta_t > 500) {
-        ((IMU*) IMU_obj)->grabData();
-        ((IMU*) IMU_obj)->scaleData();
-        // Pose data = ((IMU*) IMU_obj)->get_data();
-        ((IMU*) IMU_obj)->updateData();
-        ((IMU*) IMU_obj)->lastTimeStamp = micros();
-    }
+    ((IMU*) IMU_obj)->data_ready = true;
 }
 
+
 void IMU::update() {
-    // Serial.println("ISR");
-    int delta_t = micros() - lastTimeStamp;
-    if (delta_t > 500) {
+    if (data_ready) {
         grabData();
         scaleData();
-        // Pose data = get_data();
         updateData();
         lastTimeStamp = micros();
+        data_ready = false;
     }
 }
 void IMU::remove_interrupt() {
@@ -179,4 +165,19 @@ void IMU::reset() {
     cur_pose.pitch = 0;
     cur_pose.roll = 0;
     cur_pose.yaw = 0;
+}
+
+void IMU::print() {
+    Pose pose = get_data();
+    Serial.print(pose.pitch);
+    Serial.print(", ");
+    Serial.print(pose.roll);
+    Serial.print(", ");
+    Serial.print(pose.yaw);
+    Serial.print(", ");
+    Serial.print(pose.x);
+    Serial.print(", ");
+    Serial.print(pose.y);
+    Serial.print(", ");
+    Serial.println(pose.z);
 }

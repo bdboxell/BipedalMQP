@@ -13,6 +13,15 @@ MotorInterface::MotorInterface(int pinNum, bool rev) {
     pwmOut.attach(pinNum, msMin, msMax);
 }
 
+MotorInterface::MotorInterface(int pinNum, bool rev, int ms_min, int ms_max) {
+    pin = pinNum;
+    msMin = ms_min;
+    msMax = ms_max;
+    reversed = rev;
+    pinMode(pin,OUTPUT);
+    pwmOut.attach(pinNum, msMin, msMax);
+}
+
 int MotorInterface::write_percent(float pct) {
 
     pct = ((reversed)? -1 : 1) *pct;
