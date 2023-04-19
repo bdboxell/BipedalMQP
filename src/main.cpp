@@ -42,9 +42,9 @@ void loop() {
   if (!active && fabs(pose.pitch) < 10) // should be 0.1
     active = true;
   if (active && fabs(pose.pitch) < 20) {
-    // balance_control.balance(&pose, &packet);
-    legs.set_target_height(50);
-    legs.balance_roll(&pose);
+    balance_control.balance(&pose, &packet);
+    // legs.set_target_height(50);
+    // legs.balance_roll(&pose);
   }
   else {
     balance_control.reset();

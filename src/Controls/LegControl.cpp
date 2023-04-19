@@ -15,7 +15,7 @@ void LegControl::init() {
 // Controller for maintaining the target height and target roll
 void LegControl::balance_roll(Pose* pose) {
     // Calculate the offset for each leg to maintain balance in roll
-    float roll_adjust = 200*tan((target_roll - pose->roll)*DEG_TO_RAD);
+    float roll_adjust = 210*tan((target_roll - pose->roll)*DEG_TO_RAD);
 
     // Calculate the setpoint for each leg
     float left_target = target_height + roll_adjust;
