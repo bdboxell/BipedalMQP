@@ -1,20 +1,25 @@
 #include "PWMMonitor.h"
 
 void* PWMMonitor::PWM_obj = nullptr;
-bool PWMMonitor::is_high = false;
-int PWMMonitor::pin = 0;
+void* PWMMonitor::PWM_obj_2 = nullptr;
 
 PWMMonitor::PWMMonitor() {
     // PWM_obj = this;
 }
 
-void PWMMonitor::init(int p, void* imu_ref) {
-    pin = p;   
-    IMU_obj = imu_ref;
-    PWM_obj = this;
+void PWMMonitor::init(int p) {
+    pin = p;
     Serial.println("PWM_Obj Updated!");
     pinMode(pin, INPUT);
-    attachInterrupt(p, falling_edge_ISR, CHANGE);
+
+    if (PWM_obj == nullptr) {
+        PWM_obj = this;
+        attachInterrupt(p, ISR, CHANGE);
+    }
+    else {
+        PWM_obj_2 = this;
+        attachInterrupt(p, ISR_2, CHANGE);
+    }
 }
 
 void PWMMonitor::rising_edge() {
@@ -25,21 +30,22 @@ void PWMMonitor::falling_edge() {
     wavelength = micros() - last_time;
 }
 
-void PWMMonitor::rising_edge_ISR() {
-    Serial.println("Rising!");
-    ((PWMMonitor*) PWM_obj)->rising_edge();
-}
-
-void PWMMonitor::falling_edge_ISR() {
-    if (is_high) {
-        // Serial.println("Falling");
+void PWMMonitor::ISR() {
+    if (!digitalRead(((PWMMonitor*) PWM_obj)->pin)) {
         ((PWMMonitor*) PWM_obj)->falling_edge();
     }
     else {
-        // Serial.println("Rising!");
         ((PWMMonitor*) PWM_obj)->rising_edge();
     }
-    is_high = !is_high;
+}
+
+void PWMMonitor::ISR_2() {
+    if (!digitalRead(((PWMMonitor*) PWM_obj_2)->pin)) {
+        ((PWMMonitor*) PWM_obj_2)->falling_edge();
+    }
+    else {
+        ((PWMMonitor*) PWM_obj_2)->rising_edge();
+    }
 }
 
 int PWMMonitor::get_wavelength() {

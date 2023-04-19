@@ -5,26 +5,23 @@ Controller::Controller(int t_pin, int s_pin) {
     steering_pin = s_pin;
 }
 
-void Controller::init(void* imu_ref) {
+void Controller::init() {
     Serial.println("Controller init");
-    // str_monitor.init(steering_pin);
-    thr_monitor.init(throttle_pin, imu_ref);
+    str_monitor.init(steering_pin);
+    thr_monitor.init(throttle_pin);
 }
 
 float Controller::get_steering() {
-    int pulse = pulseIn(steering_pin, HIGH);
-    // int pulse = str_monitor.get_wavelength();
+    int pulse = str_monitor.get_wavelength();
     float scaled = scale(pulse);
     scaled = (fabs(scaled) < 1)? 0: scaled;
     return scaled;
 }
 float Controller::get_throttle() {
-    // int pulse = pulseIn(throttle_pin, HIGH);
     int pulse = thr_monitor.get_wavelength();
-    // float scaled = scale(pulse);
-    // scaled = (fabs(scaled) < 1)? 0: scaled;
-    // return scaled;
-    return pulse;
+    float scaled = scale(pulse);
+    scaled = (fabs(scaled) < 1)? 0: scaled;
+    return scaled;
 }
 
 inline float Controller::scale(int input) {

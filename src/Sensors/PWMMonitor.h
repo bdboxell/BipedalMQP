@@ -5,17 +5,17 @@ class PWMMonitor {
     public:
         PWMMonitor();
         int get_wavelength();
-        void init(int p, void* imu_ref);
+        void init(int p);
         static void* PWM_obj;
+        static void* PWM_obj_2;
+        int pin;
+
 
     private:
         int wavelength = 0;
         unsigned long last_time = micros();
         void rising_edge();
         void falling_edge();
-        static void rising_edge_ISR();
-        static void falling_edge_ISR();
-        static int pin;
-        static bool is_high;
-        void* IMU_obj;
+        static void ISR();
+        static void ISR_2();
 };

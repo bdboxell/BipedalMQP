@@ -9,6 +9,8 @@ double pid_calculate(PID *pid, double target, double current)
 
     // I term accumulator calculation
     pid->sum += error * delta_t;
+    // Bound the I sum if it is out of a max range
+    pid->sum = bound(pid->sum, pid->max_i);
 
     // Compensation to prevent strange values on first loop iteration
     if (!(pid->set))
@@ -26,11 +28,8 @@ double pid_calculate(PID *pid, double target, double current)
     pid->i_term = pid->kI * pid->sum;
     pid->d_term = pid->kD * delta_error;
 
-    // Bound the I term if it is out of a max range
-    pid->i_term = bound(pid->i_term, pid->max_i);
-
     // This is the criteria for when to reset the I term. The I accumulator will decay if the PID loop is within some tolerance of the target and the error is not rapidly changing. This indicates when the response has settled.
-    if ((fabs(delta_error) < 0.2 && fabs(error) < pid->epsilon_inner) || fabs(error) > pid->epsilon_outer)
+    if ((fabs(delta_error) < 0.3 && fabs(error) < pid->epsilon_inner) || fabs(error) > pid->epsilon_outer)
     {
         pid->sum = pid->sum * 0.95;
     }

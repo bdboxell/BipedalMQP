@@ -15,7 +15,8 @@ void LegControl::init() {
 // Controller for maintaining the target height and target roll
 void LegControl::balance_roll(Pose* pose) {
     // Calculate the offset for each leg to maintain balance in roll
-    float roll_adjust = 210*tan((target_roll - pose->roll)*DEG_TO_RAD);
+    // float roll_adjust = 210*tan((target_roll - pose->roll)*DEG_TO_RAD);
+    float roll_adjust = 0;
 
     // Calculate the setpoint for each leg
     float left_target = target_height + roll_adjust;
@@ -70,6 +71,12 @@ void LegControl::write_height(float left, float right) {
 
 void LegControl::set_target_height(float height) {
     target_height = height;
+}
+
+void LegControl::add_target_height(double addend) {
+    target_height+=addend;
+    if (target_height > 100) target_height = 100;
+    if (target_height < 0) target_height = 0;
 }
 
 // What to do when the robot falls over

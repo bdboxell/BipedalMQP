@@ -30,7 +30,8 @@ class IMU {
         void remove_interrupt();
         void update();
         void enable_interrupt();
-
+        bool data_ready = false;
+        void print();
     private:
         static void ISR();
         void grabData();
@@ -56,6 +57,5 @@ class IMU {
 		double pitch_filter[2];
         void kalman_filter(double elapsed_s, double k_input, double k_measure, double* output);
 
-        double pitch_offset = 9.45; //9.45 for level ground, 10.05 for desk
-        
+        double pitch_offset = 10.45; //9.45 for level ground, 10.05 for desk
 };

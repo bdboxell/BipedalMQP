@@ -17,6 +17,8 @@ class Balance {
         void toggle_logging();
         void set_target_speed(double speed);
         void add_turn_power(float left, float right);
+        void set_turn_power(float left, float right);
+
         void stop();
         void reset();
 
@@ -27,7 +29,7 @@ class Balance {
         MotorInterface right_motor = MotorInterface(right_drive_motor_pin, false);
         MotorInterface left_motor = MotorInterface(left_drive_motor_pin, true);
 
-        const static int filter_size = 500;
+        const static int filter_size = 1000;
         double velocity_sum = 0;
         int velocity_filter_index = 0;
         double velocity_filter[filter_size];

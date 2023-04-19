@@ -8,11 +8,11 @@ Balance::Balance()
 void Balance::init()
 {
     // PID balance_pid = pid_init(45, 800, 3.2, 0.015, 0.75, 99999); //This was used in the youtube short
-    // PID balance_pid = pid_init(120, 875, 0.625, 0.015, 0.75, 99999); //P Heavy Testing , Ku = 125
-    balance_pid = pid_init(45, 1000, 3.8, 0.015, 0.75, 99999); // Demo'd to Agheli
+    // balance_pid = pid_init(120, 1800, 8, 0.015, 0.75, 30); //P Heavy Testing , Ku = 125
+    balance_pid = pid_init(45, 1000, 3.8, 0.015, 0.75, 5); // This drove around apartment floor for 1 min
     // balance_pid = pid_init(45, 890, 5, 0.015, 0.75, 99999); // Carpet Testing
 
-    angle_pid = pid_init(1.0,1.0,1.0,0,99999,99999);
+    angle_pid = pid_init(0.003,0,0,0,99999,99999);
 }
 
 void Balance::balance(Pose *pose, DataPacket* packet)
@@ -20,13 +20,16 @@ void Balance::balance(Pose *pose, DataPacket* packet)
     // For all calculations, the speed is the average power sent to the motors over the past <filter_size> iterations
 
     // Calculate what the target angle should be.
-    // double target_angle = pid_calculate(&angle_pid, 5, 0);
+    // double target_angle = -pid_calculate(&angle_pid, target_speed, cur_speed);
+
     // Serial.println(angle_pid.kP);
-    double target_angle = 0;
+    // double target_angle = 0;
+    double target_angle = target_speed;
+
 
     // The control variable for the balance PID is the projection of the COM on the horizontal axis
     double com_displace = 4.5 * sin(pose->pitch * DEG_TO_RAD);
-    float power = pid_calculate(&balance_pid, target_angle, com_displace) - 2000 * sin(target_angle * DEG_TO_RAD);
+    float power = pid_calculate(&balance_pid, target_angle, com_displace) - 3000 * sin(target_angle * DEG_TO_RAD);
 
     // Update the speed filter
     filter_speed(power);
@@ -92,6 +95,12 @@ void Balance::add_turn_power(float left, float right)
 {
     left_input += left;
     right_input += right;
+}
+
+void Balance::set_turn_power(float left, float right)
+{
+    left_input = left;
+    right_input = right;
 }
 
 void Balance::stop()

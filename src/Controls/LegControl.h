@@ -13,10 +13,11 @@ class LegControl {
         void write_height(float left, float right);
         void balance_roll(Pose* pose);
         void set_target_height(float height);
+        void add_target_height(double addend);
         void write_velocity(float left, float right);
         void scrunch();
     private:
-        float target_height = 0;
+        double target_height = 0;
         float target_roll = 0;
 
         const float max_velocity = 80;
