@@ -2,6 +2,7 @@
 
 void* PWMMonitor::PWM_obj = nullptr;
 void* PWMMonitor::PWM_obj_2 = nullptr;
+void* PWMMonitor::PWM_obj_3 = nullptr;
 
 PWMMonitor::PWMMonitor() {
     // PWM_obj = this;
@@ -9,16 +10,19 @@ PWMMonitor::PWMMonitor() {
 
 void PWMMonitor::init(int p) {
     pin = p;
-    Serial.println("PWM_Obj Updated!");
     pinMode(pin, INPUT);
 
     if (PWM_obj == nullptr) {
         PWM_obj = this;
         attachInterrupt(p, ISR, CHANGE);
     }
-    else {
+    else if (PWM_obj_2 == nullptr) {
         PWM_obj_2 = this;
         attachInterrupt(p, ISR_2, CHANGE);
+    }
+    else {
+        PWM_obj_3 = this;
+        attachInterrupt(p, ISR_3, CHANGE);
     }
 }
 
@@ -45,6 +49,14 @@ void PWMMonitor::ISR_2() {
     }
     else {
         ((PWMMonitor*) PWM_obj_2)->rising_edge();
+    }
+}
+void PWMMonitor::ISR_3() {
+    if (!digitalRead(((PWMMonitor*) PWM_obj_3)->pin)) {
+        ((PWMMonitor*) PWM_obj_3)->falling_edge();
+    }
+    else {
+        ((PWMMonitor*) PWM_obj_3)->rising_edge();
     }
 }
 

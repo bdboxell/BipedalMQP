@@ -11,14 +11,17 @@
 #include "Controls/LegControl.h"
 
 IMU imu;
-Controller controller = Controller(35,34);
+Controller controller = Controller(35,34,32);
 Balance balance_control = Balance();
 LegControl legs = LegControl();
 
 void handle_keyboard_input();
 void handle_controller_input();
 
+bool is_aux_high = false;
 bool active = false;
+int num_heights = 4;
+int cur_height = 0;
 
 void setup(void) {
   Serial.begin(115200);
@@ -55,6 +58,7 @@ void loop() {
   else {
     balance_control.reset();
     legs.scrunch();
+    cur_height = 0;
     // active = false;
   }
 
@@ -73,7 +77,27 @@ void handle_controller_input() {
   steering = (fabs(steering) < 2)? 0: steering;
   float throttle = controller.get_throttle();
   throttle = (fabs(throttle) < 2)? 0: throttle;
+  float aux = controller.get_aux();
+  aux = (fabs(aux) < 2)? 0: aux;
 
+  if (fabs(aux)>50 && !is_aux_high) {
+    is_aux_high = true;
+    if (aux>50 && cur_height < num_heights) {
+      Serial.println("Raising!");
+      legs.add_target_height(100/num_heights);
+      imu.adjust_offset(-0.5);
+      cur_height++;
+    }
+    else if (aux<-50 && cur_height > 0) {
+      Serial.println("Lowering!");
+      legs.add_target_height(-100/num_heights);
+      imu.adjust_offset(0.5);
+      cur_height--;
+    }
+  } 
+  else if (fabs(aux) < 50) {
+    is_aux_high = false;
+  }
   
   balance_control.set_turn_power(steering*0.3, -steering*0.3);
   balance_control.set_target_speed(-throttle*0.0012);
