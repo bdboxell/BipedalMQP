@@ -8,6 +8,7 @@ class PWMMonitor {
         void init(int p);
         static void* PWM_obj;
         static void* PWM_obj_2;
+        static void* PWM_obj_3;
         int pin;
 
 
@@ -18,4 +19,6 @@ class PWMMonitor {
         void falling_edge();
         static void ISR();
         static void ISR_2();
+        static void ISR_3();
+
 };

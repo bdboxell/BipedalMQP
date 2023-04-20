@@ -85,4 +85,5 @@ void LegControl::scrunch() {
     last_left_pos = 0;
     last_right_pos = 0;
     last_timestamp = 0;
+    target_height = 0;
 }
